@@ -49,9 +49,9 @@ class Settings:
 
     EMBEDDING_MODEL: str = os.getenv(
         "EMBEDDING_MODEL",
-        "Cohere-embed-v3-multilingual"
+        "BAAI/bge-large-en-v1.5"
     )
-    """Model for text embeddings (multilingual support)"""
+    """Model for text embeddings (1024 dimensions)"""
 
     # ========================================================================
     # OCR Processing Settings
@@ -76,6 +76,21 @@ class Settings:
 
     TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "5"))
     """Number of top results to retrieve in knowledge base search"""
+
+    # ========================================================================
+    # Vector Database Configuration (Pinecone)
+    # ========================================================================
+    PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
+    """Pinecone API key for cloud vector database"""
+
+    PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME", "hackathon")
+    """Pinecone index name for storing embeddings"""
+
+    PINECONE_CLOUD: str = os.getenv("PINECONE_CLOUD", "aws")
+    """Pinecone cloud provider (aws, gcp, azure)"""
+
+    PINECONE_REGION: str = os.getenv("PINECONE_REGION", "us-east-1")
+    """Pinecone region for index deployment"""
 
     # ========================================================================
     # API Server Settings

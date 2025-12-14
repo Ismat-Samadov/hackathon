@@ -8,7 +8,24 @@ wheels/
 
 # Virtual environments
 .venv
-hackathon_data
+
+# Environment and secrets
 .env
+
+# Logs
 *.log
-*.json
+logs/
+
+# Data
+hackathon_data/
+
+# Test files
+test_*.py
+test.ipynb
+
+# Utility scripts
+check_*.py
+discover_*.py
+available_models.txt
+
+list_pinecone_pdfs.py
