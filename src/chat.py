@@ -53,7 +53,9 @@ Siz istifadəçilərə müxtəlif dillərdə və yazılarda olan tarixi tədqiqa
 - **Mənbə Sırası**: Mənbələrin cavabınızı dəstəkləmək üçün nə qədər məntiqi şəkildə düzüldüyü
 
 ## Mənbə Sənədlər:
-Aşağıda çıxarılmış sənədlər və səhifələr kontekstdə təqdim olunacaq. Bunlardan ətraflı, yaxşı istinad edilmiş cavablar qurmaq üçün istifadə edin."""
+Aşağıda çıxarılmış sənədlər və səhifələr kontekstdə təqdim olunacaq. Bunlardan ətraflı, yaxşı istinad edilmiş cavablar qurmaq üçün istifadə edin.
+Ən axırda, istinad siyahısını göstərin.
+"""
 
 
 # ============================================================================
