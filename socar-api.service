@@ -1,0 +1,22 @@
+[Unit]
+Description=SOCAR Historical Document Processing API
+After=network.target
+
+[Service]
+Type=simple
+User=hackathon
+Group=hackathon
+WorkingDirectory=/home/hackathon/samir_hackathon
+Environment="PATH=/home/hackathon/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/usr/bin/env bash -c "cd /home/hackathon/samir_hackathon && uv run python main.py --host 0.0.0.0 --port 9000"
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/hackathon/samir_hackathon/logs/api_service.log
+StandardError=append:/home/hackathon/samir_hackathon/logs/api_service_error.log
+
+# Security and resource limits
+LimitNOFILE=65536
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
