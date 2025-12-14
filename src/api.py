@@ -273,7 +273,8 @@ async def ocr_endpoint(file: UploadFile = File(...)) -> List[PageOCR]:
             )
 
         # Add to knowledge base for later querying
-        knowledge_base.add_document(file.filename, results)
+        ingest_result = knowledge_base.ingest_pdf(file.filename, results)
+        logger.info(f"Indexed to Pinecone: {ingest_result}")
 
         return results
 
@@ -397,17 +398,68 @@ async def chat_endpoint(messages: List[ChatMessage]) -> ChatResponse:
 @app.get("/knowledge-base/status")
 async def knowledge_base_status() -> dict:
     """
-    Get knowledge base status and statistics.
+    Get knowledge base status and statistics including list of indexed PDFs.
 
     Returns:
-        Dictionary with document count, total pages, and document list
+        Dictionary with vector count, PDF list, and dimension info
+        
+    Example Response:
+        {
+            "total_vectors": 1245,
+            "index_name": "hackathon",
+            "dimension": 1024,
+            "pdf_count": 28,
+            "pdfs": {
+                "document1.pdf": {"page_count": 15},
+                "document2.pdf": {"page_count": 12}
+            }
+        }
     """
     status = knowledge_base.get_status()
     logger.debug(
-        f"Knowledge base status: {status['documents_count']} documents, "
-        f"{status['total_pages']} pages"
+        f"Knowledge base status: {status.get('total_vectors', 0)} vectors, "
+        f"{status.get('pdf_count', 0)} PDFs in index '{status.get('index_name', 'unknown')}'"
     )
     return status
+
+
+@app.post("/knowledge-base/ingest")
+async def ingest_pdf_endpoint(file: UploadFile = File(...)) -> dict:
+    """
+    Ingest a PDF directly into the knowledge base.
+    
+    This endpoint:
+    1. Performs OCR on the PDF
+    2. Chunks the text
+    3. Generates embeddings
+    4. Stores in Pinecone with metadata
+    
+    Args:
+        file: PDF file to ingest
+        
+    Returns:
+        Dictionary with ingestion statistics
+    """
+    # Validate file type
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+    
+    try:
+        logger.info(f"Ingesting PDF: {file.filename}")
+        
+        # Read and process PDF
+        pdf_bytes = await file.read()
+        pages = await process_pdf_async(pdf_bytes, file.filename)
+        
+        # Ingest into Pinecone
+        result = knowledge_base.ingest_pdf(file.filename, pages)
+        
+        logger.info(f"Ingestion complete: {result}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Ingestion failed for {file.filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
 @app.delete("/knowledge-base/clear")

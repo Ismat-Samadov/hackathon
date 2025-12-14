@@ -258,19 +258,157 @@ class KnowledgeBase:
         logger.debug(f"Search for '{query}' found {len(sources)} results")
         return sources
 
-    def get_status(self) -> Dict:
+    def get_unique_pdfs(self) -> Dict[str, Dict]:
         """
-        Get knowledge base status summary.
+        Get list of unique PDFs indexed in Pinecone with their page counts.
 
         Returns:
-            Dictionary with statistics about stored vectors
+            Dictionary mapping pdf_name to {"pages": set_of_page_numbers}
         """
-        stats = self.index.describe_index_stats()
-        return {
-            "total_vectors": stats.total_vector_count,
-            "index_name": self.index_name,
-            "dimension": stats.dimension if hasattr(stats, 'dimension') else 'unknown'
-        }
+        pdf_info = {}
+        pagination_token = None
+        
+        try:
+            while True:
+                results = self.index.list_paginated(limit=100, pagination_token=pagination_token)
+                vector_ids = [v.id for v in results.vectors]
+                
+                if not vector_ids:
+                    break
+                
+                # Fetch metadata
+                fetch_response = self.index.fetch(ids=vector_ids)
+                
+                for vec_id, vector_data in fetch_response.vectors.items():
+                    if hasattr(vector_data, 'metadata') and vector_data.metadata:
+                        if 'pdf_name' in vector_data.metadata:
+                            pdf_name = vector_data.metadata['pdf_name']
+                            
+                            if pdf_name not in pdf_info:
+                                pdf_info[pdf_name] = {"pages": set()}
+                            
+                            if 'page_number' in vector_data.metadata:
+                                pdf_info[pdf_name]["pages"].add(vector_data.metadata['page_number'])
+                
+                # Check for next page
+                if hasattr(results, 'pagination') and hasattr(results.pagination, 'next') and results.pagination.next:
+                    pagination_token = results.pagination.next
+                else:
+                    break
+            
+            # Convert sets to counts for JSON serialization
+            for pdf_name in pdf_info:
+                pdf_info[pdf_name] = {"page_count": len(pdf_info[pdf_name]["pages"])}
+            
+            return pdf_info
+            
+        except Exception as e:
+            logger.error(f"Error getting unique PDFs: {e}")
+            return {}
+
+    def get_status(self) -> Dict:
+        """
+        Get knowledge base status summary including list of indexed PDFs.
+
+        Returns:
+            Dictionary with statistics about stored vectors and list of PDFs
+        """
+        try:
+            stats = self.index.describe_index_stats()
+            
+            # Handle both dict and object responses
+            if isinstance(stats, dict):
+                total_vectors = stats.get('total_vector_count', 0)
+                dimension = stats.get('dimension', 'unknown')
+            else:
+                total_vectors = getattr(stats, 'total_vector_count', 0)
+                dimension = getattr(stats, 'dimension', 'unknown')
+            
+            # Get unique PDFs
+            pdfs = self.get_unique_pdfs()
+            
+            return {
+                "total_vectors": total_vectors,
+                "index_name": self.index_name,
+                "dimension": dimension,
+                "pdf_count": len(pdfs),
+                "pdfs": pdfs
+            }
+        except Exception as e:
+            logger.error(f"Error getting index status: {e}")
+            return {
+                "total_vectors": 0,
+                "index_name": self.index_name,
+                "dimension": "unknown",
+                "pdf_count": 0,
+                "pdfs": {},
+                "error": str(e)
+            }
+
+    def ingest_pdf(self, pdf_name: str, pages: List[PageOCR]) -> Dict:
+        """
+        Ingest a single PDF document into Pinecone.
+
+        Args:
+            pdf_name: Name of the PDF document
+            pages: List of PageOCR objects with extracted content
+
+        Returns:
+            Dictionary with ingestion statistics
+        """
+        chunks_added = 0
+        pages_processed = 0
+        
+        try:
+            for page in pages:
+                # Chunk the page content
+                chunks = self._chunk_text(page.MD_text)
+                
+                if not chunks:
+                    continue
+                
+                # Get embeddings for all chunks
+                embeddings = self._get_embeddings(chunks)
+                
+                vectors_to_upsert = []
+                for chunk_idx, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+                    vector_id = self._generate_id(pdf_name, page.page_number, chunk_idx)
+                    
+                    metadata = {
+                        "pdf_name": pdf_name,
+                        "page_number": page.page_number,
+                        "content": chunk,
+                        "chunk_index": chunk_idx
+                    }
+                    
+                    vectors_to_upsert.append({
+                        "id": vector_id,
+                        "values": embedding,
+                        "metadata": metadata
+                    })
+                
+                # Upsert to Pinecone
+                if vectors_to_upsert:
+                    self.index.upsert(vectors=vectors_to_upsert)
+                    chunks_added += len(vectors_to_upsert)
+                    pages_processed += 1
+            
+            logger.info(f"Ingested {pdf_name}: {pages_processed} pages, {chunks_added} chunks")
+            
+            return {
+                "status": "success",
+                "pdf_name": pdf_name,
+                "pages_processed": pages_processed,
+                "chunks_added": chunks_added
+            }
+            
+        except Exception as e:
+            logger.error(f"Error ingesting {pdf_name}: {e}")
+            return {
+                "status": "error",
+                "pdf_name": pdf_name,
+                "error": str(e)
+            }
 
     def clear(self) -> None:
         """Clear all vectors from the knowledge base."""
