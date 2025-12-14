@@ -90,9 +90,15 @@ docker --version
 docker compose version
 
 echo ""
-echo "⚠️  IMPORTANT: Log out and log back in for group changes to take effect!"
+echo "⚠️  IMPORTANT: To use Docker without sudo, run one of the following:"
 echo ""
-echo "After logging back in, verify Docker works without sudo:"
+echo "Option 1 (Temporary - current terminal only):"
+echo "  newgrp docker"
+echo ""
+echo "Option 2 (Permanent - recommended):"
+echo "  Log out and log back in"
+echo ""
+echo "After that, verify Docker works without sudo:"
 echo "  docker run hello-world"
 echo ""
 echo "🎉 Installation successful!"
