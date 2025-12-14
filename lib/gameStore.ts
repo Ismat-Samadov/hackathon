@@ -213,12 +213,28 @@ export const useGameStore = create<GameState>()(
           newEvent = generateRandomEvent();
         }
 
+        // Calculate population growth (1% per second if food > 0, with tech bonus)
+        let populationGrowthRate = 0.01;
+        const hasPopGrowthTech = state.technologies.find(
+          (t) => t.id === 'population-growth' && t.researched
+        );
+        if (hasPopGrowthTech) {
+          populationGrowthRate *= 1.25;
+        }
+
+        const totalPopulation = state.planets.reduce(
+          (sum, p) => sum + (p.colonized ? p.population : 0),
+          0
+        );
+        const populationGrowth = production.food > 0 ? totalPopulation * populationGrowthRate * deltaTime * state.gameSpeed : 0;
+
         // Update resources
         const resourceUpdate = {
           credits: production.credits * deltaTime * state.gameSpeed,
           minerals: production.minerals * deltaTime * state.gameSpeed,
           energy: production.energy * deltaTime * state.gameSpeed,
           food: production.food * deltaTime * state.gameSpeed,
+          population: populationGrowth,
         };
 
         state.addResources(resourceUpdate);

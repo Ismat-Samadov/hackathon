@@ -24,33 +24,33 @@ export default function EventModal({ event, onChoice, onDismiss }: EventModalPro
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-      <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl border-2 border-cyan-500/50 animate-in zoom-in-95 duration-300">
-        <div className={`bg-gradient-to-r ${eventColors[event.type]} p-6 rounded-t-2xl`}>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">{eventEmojis[event.type]}</span>
-            <h2 className="text-3xl font-bold text-white">{event.title}</h2>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 animate-in fade-in duration-300">
+      <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl border-2 border-cyan-500/50 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+        <div className={`bg-gradient-to-r ${eventColors[event.type]} p-4 sm:p-6 rounded-t-2xl`}>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <span className="text-3xl sm:text-4xl">{eventEmojis[event.type]}</span>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">{event.title}</h2>
           </div>
           <div className="bg-black/20 px-3 py-1 rounded inline-block">
-            <span className="text-sm text-white/90 capitalize">{event.type}</span>
+            <span className="text-xs sm:text-sm text-white/90 capitalize">{event.type}</span>
           </div>
         </div>
 
-        <div className="p-6">
-          <p className="text-lg text-gray-300 mb-6">{event.description}</p>
+        <div className="p-4 sm:p-6">
+          <p className="text-base sm:text-lg text-gray-300 mb-4 sm:mb-6">{event.description}</p>
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {event.choices.map((choice, index) => (
               <button
                 key={index}
                 onClick={() => onChoice(index)}
-                className="w-full p-4 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 hover:from-indigo-800/60 hover:to-purple-800/60 rounded-lg border border-indigo-500/30 hover:border-indigo-400/60 transition-all group"
+                className="w-full p-3 sm:p-4 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 hover:from-indigo-800/60 hover:to-purple-800/60 rounded-lg border border-indigo-500/30 hover:border-indigo-400/60 transition-all group active:scale-95"
               >
                 <div className="text-left">
-                  <div className="text-white font-semibold mb-2 group-hover:text-cyan-300 transition-colors">
+                  <div className="text-white font-semibold mb-2 group-hover:text-cyan-300 transition-colors text-sm sm:text-base">
                     {choice.text}
                   </div>
-                  <div className="flex flex-wrap gap-2 text-sm">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm">
                     {choice.effects.credits !== 0 && (
                       <span className={choice.effects.credits! > 0 ? 'text-green-400' : 'text-red-400'}>
                         {choice.effects.credits! > 0 ? '+' : ''}{choice.effects.credits}💰
@@ -84,7 +84,7 @@ export default function EventModal({ event, onChoice, onDismiss }: EventModalPro
 
           <button
             onClick={onDismiss}
-            className="mt-4 w-full py-2 text-gray-400 hover:text-white transition-colors text-sm"
+            className="mt-3 sm:mt-4 w-full py-2 text-gray-400 hover:text-white transition-colors text-xs sm:text-sm active:scale-95"
           >
             Dismiss (Later)
           </button>

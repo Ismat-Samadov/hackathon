@@ -55,39 +55,73 @@ export default function Home() {
   const canAffordExploration = resources.credits >= 200 && resources.energy >= 50;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 p-4 md:p-8">
-      {/* Background stars effect */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 p-3 sm:p-4 md:p-6 lg:p-8">
+      {/* Enhanced Background stars effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '10%', left: '20%' }} />
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '30%', left: '40%', animationDelay: '0.5s' }} />
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '50%', left: '60%', animationDelay: '1s' }} />
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '70%', left: '80%', animationDelay: '1.5s' }} />
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '20%', left: '70%', animationDelay: '0.3s' }} />
-        <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{ top: '80%', left: '30%', animationDelay: '0.8s' }} />
-        <div className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-pulse-slow" style={{ top: '15%', left: '85%' }} />
-        <div className="absolute w-2 h-2 bg-purple-400 rounded-full animate-pulse-slow" style={{ top: '60%', left: '15%', animationDelay: '1s' }} />
+        {/* Small stars */}
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute w-0.5 h-0.5 bg-white rounded-full animate-twinkle"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+            }}
+          />
+        ))}
+        {/* Medium stars */}
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={`star-med-${i}`}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
+        {/* Glowing stars */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={`star-glow-${i}`}
+            className={`absolute w-2 h-2 rounded-full animate-pulse-slow ${
+              i % 3 === 0 ? 'bg-cyan-400' : i % 3 === 1 ? 'bg-purple-400' : 'bg-pink-400'
+            }`}
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              boxShadow: `0 0 ${10 + Math.random() * 10}px currentColor`,
+            }}
+          />
+        ))}
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-4 animate-in fade-in slide-in-from-top duration-1000">
+        <header className="text-center mb-6 sm:mb-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-4 animate-in fade-in slide-in-from-top duration-1000 drop-shadow-2xl">
             Space Colonization
           </h1>
-          <p className="text-xl text-gray-400 animate-in fade-in slide-in-from-bottom duration-1000 delay-200">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 animate-in fade-in slide-in-from-bottom duration-1000 delay-200 px-4">
             Build Your Galactic Empire
           </p>
         </header>
 
         {/* Main Game Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <ResourceDisplay resources={resources} />
 
             {/* Planets Section */}
-            <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 backdrop-blur-sm rounded-lg p-6 shadow-2xl border border-blue-500/30">
-              <h2 className="text-3xl font-bold mb-4 text-cyan-300">🪐 Planets</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 backdrop-blur-md rounded-xl p-4 sm:p-6 shadow-2xl border border-blue-500/30 hover:border-blue-400/50 transition-all glow-cyan">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-cyan-300 flex items-center gap-2">
+                <span>🪐</span>
+                <span>Planets</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {planets.map((planet) => (
                   <PlanetCard
                     key={planet.id}
@@ -100,9 +134,12 @@ export default function Home() {
             </div>
 
             {/* Technologies Section */}
-            <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 backdrop-blur-sm rounded-lg p-6 shadow-2xl border border-purple-500/30">
-              <h2 className="text-3xl font-bold mb-4 text-cyan-300">🔬 Research</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 backdrop-blur-md rounded-xl p-4 sm:p-6 shadow-2xl border border-purple-500/30 hover:border-purple-400/50 transition-all glow-purple">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-cyan-300 flex items-center gap-2">
+                <span>🔬</span>
+                <span>Research</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {technologies.map((tech) => {
                   const canAfford = resources.credits >= tech.cost.credits && resources.minerals >= tech.cost.minerals;
                   return (
@@ -118,7 +155,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-first lg:order-last">
             <GameControls
               gameSpeed={gameSpeed}
               onSpeedChange={setGameSpeed}
@@ -132,8 +169,8 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-gray-500 text-sm">
-          <p>No login required • Auto-saves to browser • Made with Next.js & TypeScript</p>
+        <footer className="text-center text-gray-500 text-xs sm:text-sm py-4">
+          <p className="px-4">No login required • Auto-saves to browser • Made with Next.js & TypeScript</p>
         </footer>
       </div>
 
